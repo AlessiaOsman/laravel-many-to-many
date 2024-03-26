@@ -4,7 +4,7 @@
 
 @section('content')
     <header class="d-flex justify-content-between align-items-center mb-5">
-        <h1>Progetti</h1>
+        <h1>Tipologie</h1>
         <a class="btn btn-primary" href="{{route('admintypes.create')}}"><i
             class="fa-solid fa-plus me-2"></i>Aggiungi Tipologia</a>
     </header>

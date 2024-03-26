@@ -22,7 +22,8 @@
                 <div>
                     <h5 class="card-title">{{ $project->title }}</h5>
                     <p class="card-text">{{ $project->contentTruncate('content') }}</p>
-                    <p class="card-text"><small class="text-body-secondary"><a
+                    <span style="background-color: {{$project->type ? $project->type->color : ''}}" class="badge mb-2">{{ $project->type ? $project->type->label : '-' }}</span>
+                    <p class="card-text mb-2"><small class="text-body-secondary"><a
                                 href="{{ $project->url }}">{{ $project->url }}</a></small></p>
                 </div>
                 <div class="d-flex justify-content-between">
