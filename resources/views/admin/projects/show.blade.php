@@ -12,14 +12,19 @@
         <div class="col-md-8">
         <div class="card-body d-flex flex-column justify-content-between" style="height: 100%;">
             <div>
-                <h5 class="card-title">{{ $project->title }}</h5>
+                <h2 class="card-title">{{ $project->title }}</h2>
                 <h4>Categoria: @if ($project->type) 
                     <span style="background-color: {{$project->type->color}}" class="badge text-bg-primary">{{$project->type->label}}</span>
                     @else
                     Nessuna
                     @endif</h4>
+                    @forelse ($project->technologies as $technology )
+                    <span class="badge rounded-pill text-bg-{{$technology->color}}">{{$technology->label}}</span>
+                    @empty
+                        <h4 class="mb-3">Nessuna tecnologia presente</h4>
+                    @endforelse
                 <p class="card-text">{{ $project->content }}</p>
-                <p class="card-text"><small class="text-body-secondary"><a
+                <p class="card-text mb-3"><small class="text-body-secondary"><a
                             href="{{ $project->url }}">{{ $project->url }}</a></small></p>
             </div>
             <div class="d-flex justify-content-between">

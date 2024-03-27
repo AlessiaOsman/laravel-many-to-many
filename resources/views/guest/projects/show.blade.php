@@ -13,6 +13,11 @@
       <div>
           <h5 class="card-title">{{ $project->title }}</h5>
           <span style="background-color: {{$project->type ? $project->type->color : ''}}" class="badge mb-2">{{ $project->type ? $project->type->label : '-' }}</span>
+          @forelse ($project->technologies as $technology )
+          <span class="badge rounded-pill text-bg-{{$technology->color}}">{{$technology->label}}</span>
+          @empty
+              <h4 class="mb-3">Nessuna tecnologia presente</h4>
+          @endforelse
           <p class="card-text">{{ $project->content }}</p>
           <p class="card-text mb-2"><small class="text-body-secondary"><a
                       href="{{ $project->url }}">{{ $project->url }}</a></small></p>

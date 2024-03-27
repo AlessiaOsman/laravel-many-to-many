@@ -75,26 +75,21 @@
         </div>
     </div>
     <div class="col-5">
-       
         <div class="mb-3">
             <label for="image" class="form-label">Immagine</label>
-
-
             <div @class(['form-control', 'd-none' => !$project->image]) id='previous-image-field'>
                 <button class="btn btn-outline-secondary" type="button" id="change-image-button">Cambia Immagine</button>
                 <input type="text" class="form-control" value="{{ old('image', $project->image) }}" disabled>
               </div>
-
             <input type="file" class="form-control @if($project->image) d-none @endif @error('image') is-invalid @elseif (old('image', '')) is-valid @enderror" 
             name='image' id="image" >
         </div>
         @error('image')
             <div class="invalid-feedback">
                 {{ $message }}
-                </div>   
-                @else
-                <div class="form-text">
-                    Carica un file immagine</div>         
+            </div>   
+        @else
+            <div class="form-text">Carica un file immagine</div>         
         @enderror
     </div>
     <div class="col-1">
@@ -104,6 +99,23 @@
             : 'https://marcolanci.it/boolean/assets/placeholder.png' }}"
                 class="img-fluid" alt="{{$project->image ? $project->title : 'preview'}}" id='preview'>
         </div>
+    </div>
+
+    <div class="col">
+        <div class="mt-3">
+            @foreach ( $technologies as $technology )
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="{{"tech-$technology->label"}}" name='technologies[]' value="{{$technology->id}}" 
+                @if (in_array($technology->id, old('technologies', $prev_tech ?? []))) checked @endif>
+                <label class="form-check-label" for="{{"tech-$technology->label"}}">{{$technology->label}}</label>
+              </div>
+            @endforeach    
+        </div>
+        @error('technologies')
+            <div class="invalid-feedback">
+                {{$message}}
+            </div>
+        @enderror
     </div>
 
 </div>

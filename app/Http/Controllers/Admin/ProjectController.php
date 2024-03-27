@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -31,7 +32,8 @@ class ProjectController extends Controller
     {
         $project = new Project;
         $types = Type::select('label', 'id')->get();
-        return view('admin.projects.create', compact('project', 'types'));
+        $technologies = Technology::select('label', 'id')->get();
+        return view('admin.projects.create', compact('project', 'types', 'technologies'));
     }
 
     /**
@@ -45,7 +47,8 @@ class ProjectController extends Controller
                 'content' => 'required|string',
                 'type_id' => 'nullable|exists:types,id',
                 'image' => 'nullable|image|mimes:png,jpg,jpeg',
-                'url' => 'required|url:http,https'
+                'url' => 'required|url:http,https',
+                'technologies' => 'nullable|exists:technologies,id'
             ],
             [
                 'title.required' => 'Il titolo è obbligatorio',
@@ -55,7 +58,8 @@ class ProjectController extends Controller
                 'image.image' => 'Il file inserito non è un\'immagine', 
                 'image.mimes' => 'Le estensione possono essere .png, .jpg, .jpeg', 
                 'url.required' => 'L\'indirizzo di riferimento è obbligatorio',
-                'url.url' => 'L\'url inserito non è corretto'
+                'url.url' => 'L\'url inserito non è corretto',
+                'technologies.exists' => 'Le tecnologie selezionate non sono valide'
             ]); 
 
         $data = $request->all();
@@ -70,6 +74,10 @@ class ProjectController extends Controller
             $project->image = $img_url;
         };
         $project->save();
+
+        if(Arr::exists($data, 'technologies')){
+            $project->technologies()->attach($data['technologies']);
+        }
 
         return to_route('adminprojects.show', $project)->with('message', 'Nuovo progetto inserito con successo')->with('type', 'success');
     }
@@ -88,8 +96,11 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
+        $prev_tech = $project->technologies->pluck('id')->toArray();    
         $types = Type::select('label', 'id')->get();
-        return view('admin.projects.edit', compact('project', 'types'));
+        $technologies = Technology::select('label', 'id')->get();
+        
+        return view('admin.projects.edit', compact('project', 'types', 'technologies', 'technologies', 'prev_tech'));
     }
 
     /**
@@ -103,7 +114,8 @@ class ProjectController extends Controller
             'content' => 'required|string',
             'type_id' => 'nullable|exists:types,id',
             'image' => 'nullable|image|mimes:png,jpg,jpeg',
-            'url' => 'required|url:http,https'
+            'url' => 'required|url:http,https',
+            'technologies' => 'nullable|exists:technologies,id'
         ],
         [
             'title.required' => 'Il titolo è obbligatorio',
@@ -113,7 +125,8 @@ class ProjectController extends Controller
             'image.image' => 'Il file inserito non è un\'immagine', 
             'image.mimes' => 'Le estensione possono essere .png, .jpg, .jpeg', 
             'url.required' => 'L\'indirizzo di riferimento è obbligatorio',
-            'url.url' => 'L\'url inserito non è corretto'
+            'url.url' => 'L\'url inserito non è corretto',
+            'technologies.exists' => 'Le tecnologie selezionate non sono valide'
         ]);
 
         $data = $request->all();
@@ -128,6 +141,11 @@ class ProjectController extends Controller
         };
 
         $project->save();
+
+        if(Arr::exists($data, 'technologies')){
+            $project->technologies()->sync($data['technologies']);
+        } elseif(!Arr::exists($data, 'technologies') && $project->has('technologies')) $project->technologies()->detach();
+
         return to_route('adminprojects.show', $project)->with('message', 'Post modificato con sucesso')->with('type', 'success');
     }
 
@@ -137,6 +155,7 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $project->delete();
+        if($project->has('technologies')) $project->technologies()->detach();
         return to_route('adminprojects.index')->with('type', 'danger')->with('message', 'Progetto eliminato con successo');
     }
 }
